@@ -9,23 +9,23 @@ from algosdk.future.transaction import AssetConfigTxn, wait_for_confirmation
 
 class Nft():
     
-    def __init__(self, algod_client, accounts):
-        self.algod_client = algod_client
-        self.accounts = accounts
+    def __init__(self, mnemo):
+        self.mnemo = mnemo
+        # self.accounts = accounts
         
     
-    def create_non_fungible_token(self, closeout_account):
+    def create_non_fungible_token(self):
         # For ease of reference, add account public and private keys to
         # an accounts dict.
         print("--------------------------------------------")
         print("Creating account...")
         accounts = {}
         # m = create_account()
-        m = "frost fade sustain broom country segment shoulder bench screen game sure gas depend slender connect melody siren abstract want trade simple demand rib abstract thought"
+        # m = "frost fade sustain broom country segment shoulder bench screen game sure gas depend slender connect melody siren abstract want trade simple demand rib abstract thought"
         # print(m)
         accounts[1] = {}
-        accounts[1]["pk"] = mnemonic.to_public_key(m)
-        accounts[1]["sk"] = mnemonic.to_private_key(m)
+        accounts[1]["pk"] = mnemonic.to_public_key(self.mnemo)
+        accounts[1]["sk"] = mnemonic.to_private_key(self.mnemo)
 
         # Change algod_token and algod_address to connect to a different client
         algod_token = "2f3203f21e738a1de6110eba6984f9d03e5a95d7a577b34616854064cf2c0e7b"
@@ -132,12 +132,13 @@ class Nft():
         except Exception as e:
             print(e)
 
-        print("--------------------------------------------")
-        print("Sending closeout transaction back to the testnet dispenser...")
-        closeout_account(algod_client, accounts[1])
+        # print("--------------------------------------------")
+        # print("Sending closeout transaction back to the testnet dispenser...")
+        # closeout_account(algod_client, accounts[1])
 
 
     #   Utility function used to print created asset for account and assetid
+    
     def print_created_asset(self, algodclient, account, assetid):
         # note: if you have an indexer instance available it is easier to just use this
         # response = myindexer.accounts(asset_id = assetid)
