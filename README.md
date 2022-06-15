@@ -1,4 +1,4 @@
-#End-to-End Web3 dApps
+# End-to-End Web3 dApps
 
 ![Distributed application](./images/web3.jpg)
 
