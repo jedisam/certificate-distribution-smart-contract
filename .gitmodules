@@ -4,3 +4,9 @@
 [submodule "front-end2"]
 	path = front-end2
 	url = ./front-end2
+[submodule "Node"]
+	path = Node
+	url = ./Node/
+[submodule "dapp-front-end"]
+	path = dapp-front-end
+	url = https://github.com/jedisam/dapp-front-end
