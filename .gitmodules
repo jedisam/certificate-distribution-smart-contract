@@ -7,3 +7,6 @@
 [submodule "Node"]
 	path = Node
 	url = ./Node/
+[submodule "dapp-front-end"]
+	path = dapp-front-end
+	url = https://github.com/jedisam/dapp-front-end
