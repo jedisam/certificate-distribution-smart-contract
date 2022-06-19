@@ -1,4 +1,0 @@
-[submodule "dapp-front-end"]
-	path = dapp-front-end
-	url = https://github.com/jedisam/dapp-front-end
-	branch=main
