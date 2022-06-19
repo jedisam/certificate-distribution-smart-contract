@@ -43,3 +43,24 @@ exports.optin = async (req, res, next) => {
     });
   }
 };
+
+exports.removeOptin = async (req, res, next) => {
+  try {
+    const optin = await OptinModel.findOneAndDelete({
+      address: req.body.address,
+    });
+
+    res.status(200).json({
+      status: 'success',
+      data: {
+        optin,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Internal server error',
+    });
+  }
+};

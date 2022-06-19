@@ -13,6 +13,7 @@ router
 router
   .route('/optin')
   .get(optinController.getOptins)
-  .post(optinController.optin);
+  .post(optinController.optin)
+  .delete(optinController.removeOptin);
 
 module.exports = router;

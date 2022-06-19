@@ -49,6 +49,52 @@ const uploadJson = async (name, description) => {
   //   console.log(res.data);
 };
 
+const freezeAsset = async (
+  algodclient,
+  adminAddress,
+  traineeAddress,
+  assetID,
+  sk
+) => {
+  // await getChangingParms(algodclient);
+  params = await algodclient.getTransactionParams().do();
+  //comment out the next two lines to use suggested fee
+  // params.fee = 1000;
+  // params.flatFee = true;
+
+  from = adminAddress;
+  freezeTarget = traineeAddress;
+  freezeState = true;
+  note = undefined;
+
+  // The freeze transaction needs to be signed by the freeze account
+  let ftxn = algosdk.makeAssetFreezeTxnWithSuggestedParams(
+    from,
+    note,
+    assetID,
+    freezeTarget,
+    freezeState,
+    params
+  );
+
+  // Must be signed by the freeze account
+  rawSignedTxn = ftxn.signTxn(sk.sk);
+  let ftx = await algodclient.sendRawTransaction(rawSignedTxn).do();
+
+  // Wait for confirmation
+  confirmedTxn = await algosdk.waitForConfirmation(algodclient, ftx.txId, 4);
+  //Get the completed Transaction
+  console.log(
+    'Transaction ' +
+      ftx.txId +
+      ' confirmed in round ' +
+      confirmedTxn['confirmed-round']
+  );
+
+  // You should now see the asset is frozen listed in the account information
+  // console.log('Account 3 = ');
+};
+
 const waitForConfirmation = async function (algodClient, txId) {
   let lastround = (await algodClient.status().do())['last-round'];
   while (true) {
@@ -169,6 +215,79 @@ exports.addAsset = async (req, res, next) => {
     res.status(200).json({
       status: 'success',
       assetID,
+    });
+  } catch (err) {
+    console.log('SOME ERROR HAS OCCURED: ', err);
+    res.status(400).json({
+      status: 'fail',
+      message: err,
+    });
+  }
+};
+
+exports.transferAsset = async (req, res, next) => {
+  try {
+    sk = algosdk.mnemonicToSecretKey(process.env.MNEMO1);
+
+    algod_token = process.env.ALGOD_TOKEN;
+    algod_address = process.env.ALGOD_ADDRESS;
+    console.log(algod_token, algod_address);
+    const pub_1 = process.env.PUBLIC_KEY1;
+    const pub_2 = req.body.address;
+    const token = {
+      'X-API-Key': process.env.A_KEY,
+    };
+    // let algodclient = new algosdk.Algod(algod_token, algod_address);
+    let algodclient = new algosdk.Algodv2(token, algod_address, '');
+    params = await algodclient.getTransactionParams().do();
+    //comment out the next two lines to use suggested fee
+    // params.fee = 1000;
+    // params.flatFee = true;
+
+    sender = pub_1;
+    recipient = pub_2;
+    revocationTarget = undefined;
+    closeRemainderTo = undefined;
+    note = undefined;
+    assetID = req.body.asset_id;
+    //Amount of the asset to transfer
+    amount = 1;
+
+    // signing and sending "txn" will send "amount" assets from "sender" to "recipient"
+    let xtxn = algosdk.makeAssetTransferTxnWithSuggestedParams(
+      sender,
+      recipient,
+      closeRemainderTo,
+      revocationTarget,
+      amount,
+      note,
+      assetID,
+      params
+    );
+    // Must be signed by the account sending the asset
+    rawSignedTxn = xtxn.signTxn(sk.sk);
+    let xtx = await algodclient.sendRawTransaction(rawSignedTxn).do();
+
+    // Wait for confirmation
+    confirmedTxn = await algosdk.waitForConfirmation(algodclient, xtx.txId, 4);
+    //Get the completed Transaction
+    console.log(
+      'Transaction ' +
+        xtx.txId +
+        ' confirmed in round ' +
+        confirmedTxn['confirmed-round']
+    );
+
+    // You should now see the 1 assets listed in the account information
+    console.log('Successfuly transferred asset');
+    await OptinModel.findOneAndDelete({ asset_id: req.body.asset_id });
+    //  Freeze the asset
+    console.log('Freezing asset...');
+    await freezeAsset(algodclient, sender, recipient, req.body.asset_id, sk);
+    console.log('Asset successfully frozen');
+    res.status(200).json({
+      status: 'success',
+      message: 'Asset transferred successfully',
     });
   } catch (err) {
     console.log('SOME ERROR HAS OCCURED: ', err);
