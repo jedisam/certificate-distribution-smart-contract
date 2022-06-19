@@ -8,17 +8,13 @@ process.on('uncaughtException', (err) => {
 });
 
 // require("dotenv/config");
-dotenv.config({ path: './env/node.env' });
+dotenv.config({ path: '.env' });
 const app = require('./app.js');
 
-// const DB = `mongodb://${process.env.USER}:${process.env.PASSWORD}@mongodb/${process.env.DB}?authSource=admin`;
-// const DB = 'mongodb://mongodb:27017/tubo_db';
 const DB = process.env.DATABASE;
 mongoose
   .connect(DB, {
     useNewUrlParser: true,
-    useCreateIndex: true,
-    useFindAndModify: false,
     useUnifiedTopology: true,
   })
   .then(() => {

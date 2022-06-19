@@ -26,7 +26,7 @@ app.get('/', (req, res) => {
   });
 });
 
-app.use('/trainee', traineeRouter);
+app.use('/api/v1/trainees', traineeRouter);
 
 // app.use('/api/v1/users', userRouter);
 

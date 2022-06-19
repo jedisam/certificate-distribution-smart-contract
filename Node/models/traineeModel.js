@@ -5,20 +5,19 @@ const traineeSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
-  numRows: {
-    type: Number,
-    required: true,
-    default: 0,
-  },
-  storage: {
+  email: {
     type: String,
     required: true,
   },
-  containerName: {
+  country: {
+    type: String,
+    required: true,
+  },
+  status: {
     type: String,
     required: true,
   },
 });
 
-const QueryData = mongoose.model('QueryData', traineeSchema);
-module.exports = QueryData;
+const TraineeData = mongoose.model('trainee', traineeSchema);
+module.exports = TraineeData;
