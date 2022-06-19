@@ -58,9 +58,6 @@ const freezeAsset = async (
 ) => {
   // await getChangingParms(algodclient);
   params = await algodclient.getTransactionParams().do();
-  //comment out the next two lines to use suggested fee
-  // params.fee = 1000;
-  // params.flatFee = true;
 
   from = adminAddress;
   freezeTarget = traineeAddress;
@@ -90,9 +87,6 @@ const freezeAsset = async (
       ' confirmed in round ' +
       confirmedTxn['confirmed-round']
   );
-
-  // You should now see the asset is frozen listed in the account information
-  // console.log('Account 3 = ');
 };
 
 const waitForConfirmation = async function (algodClient, txId) {
@@ -139,13 +133,8 @@ exports.addAsset = async (req, res, next) => {
     let algodclient = new algosdk.Algodv2(token, algod_address, '');
 
     let params = await algodclient.getTransactionParams().do();
-    // comment out the next two lines to use suggested fee
-    // params.fee = 1000;
-    // params.flatFee = true;
-    let note = undefined; // arbitrary data to be stored in the transaction; here, none is stored
-    // The following parameters are asset specific
-    // Throughout the example these will be re-used.
-    // We will also change the manager later in the example
+
+    let note = undefined;
     let addr = pub_1;
     // Whether user accounts will need to be unfrozen before transacting
     let defaultFrozen = false;
@@ -154,20 +143,14 @@ exports.addAsset = async (req, res, next) => {
     // total number of this asset available for circulation
     let totalIssuance = 1;
     // Used to display asset units to user
-    let unitName = 'NANAN';
+    let unitName = 'Certificate';
     // Friendly name of the asset
-    let assetName = 'ALALA';
+    let assetName = `${req.body.name}'s Ten Certificate`;
     // Optional string pointing to a URL relating to the asset
     let assetURL = upfsUrl;
     // Optional hash commitment of some sort relating to the asset. 32 character length.
     let assetMetadataHash = '16efaa3924a6fd9d3a4824799a4ac65d';
-    // The following parameters are the only ones
-    // that can be changed, and they have to be changed
-    // by the current manager
-    // Specified address can change reserve, freeze, clawback, and manager
     let manager = pub_1;
-    // Specified address is considered the asset reserve
-    // (it has no special privileges, this is only informational)
     let reserve = pub_1;
     // Specified address can freeze or unfreeze user asset holdings
     let freeze = pub_1;
@@ -240,9 +223,6 @@ exports.transferAsset = async (req, res, next) => {
     // let algodclient = new algosdk.Algod(algod_token, algod_address);
     let algodclient = new algosdk.Algodv2(token, algod_address, '');
     params = await algodclient.getTransactionParams().do();
-    //comment out the next two lines to use suggested fee
-    // params.fee = 1000;
-    // params.flatFee = true;
 
     sender = pub_1;
     recipient = pub_2;
@@ -312,25 +292,12 @@ exports.optinAsset = async (req, res, next) => {
     };
     // let algodclient = new algosdk.Algod(algod_token, algod_address);
     let algodclient = new algosdk.Algodv2(token, algod_address, '');
-    // Opting in to transact with the new asset
-    // Allow accounts that want recieve the new asset
-    // Have to opt in. To do this they send an asset transfer
-    // of the new asset to themseleves
-    // In this example we are setting up the 3rd recovered account to
-    // receive the new asset
 
-    // First update changing transaction parameters
-    // We will account for changing transaction parameters
-    // before every transaction in this example
     params = await algodclient.getTransactionParams().do();
-    //comment out the next two lines to use suggested fee
-    // params.fee = 1000;
-    // params.flatFee = true;
 
     let sender = pub_2;
     let recipient = sender;
-    // We set revocationTarget to undefined as
-    // This is not a clawback operation
+
     let revocationTarget = undefined;
     // CloseReaminerTo is set to undefined as
     // we are not closing out an asset
