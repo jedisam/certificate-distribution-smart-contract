@@ -3,6 +3,7 @@ const cors = require('cors');
 
 // const userRouter = require('./routes/userRoute');
 const globalErrorHandler = require('./controllers/errorController');
+const traineeRouter = require('./routes/traineeRoute');
 
 const app = express();
 
@@ -24,6 +25,8 @@ app.get('/', (req, res) => {
     status: 'success',
   });
 });
+
+app.use('/trainee', traineeRouter);
 
 // app.use('/api/v1/users', userRouter);
 
