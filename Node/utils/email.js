@@ -1,5 +1,4 @@
 const nodemailer = require('nodemailer');
-// const htmlToText = require('html-to-text');
 const pug = require('pug');
 
 module.exports = class Email {
@@ -7,14 +6,10 @@ module.exports = class Email {
     this.to = user.email;
     this.firstName = user.name;
     this.assetID = assetID;
-    this.from = `Tenx`;
+    this.from = 'Tenx';
   }
 
   newTransport() {
-    // if (process.env.NODE_ENV === 'production') {
-    //   // sendgrid
-    //   return 1;
-    // }
     return nodemailer.createTransport({
       service: 'gmail',
       // host: process.env.EMAIL_HOST,
@@ -24,9 +19,6 @@ module.exports = class Email {
         user: process.env.EMAIL_USERNAME_LOCAL,
         pass: process.env.EMAIL_PASSWORD_LOCAL,
       },
-      // tls: {
-      //   ciphers: 'SSLv3',
-      // },
     });
   }
 
@@ -49,7 +41,6 @@ module.exports = class Email {
       to: this.to,
       subject: subject,
       html,
-      // text: htmlToText.fromString(html),
     };
 
     // 3) create a transport and send email

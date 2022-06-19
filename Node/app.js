@@ -4,6 +4,7 @@ const cors = require('cors');
 // const userRouter = require('./routes/userRoute');
 const globalErrorHandler = require('./controllers/errorController');
 const traineeRouter = require('./routes/traineeRoute');
+const nftRouter = require('./routes/nftRoute');
 
 const app = express();
 
@@ -27,6 +28,7 @@ app.get('/', (req, res) => {
 });
 
 app.use('/api/v1/trainees', traineeRouter);
+app.use('/api/v1/nft', nftRouter);
 
 // app.use('/api/v1/users', userRouter);
 
