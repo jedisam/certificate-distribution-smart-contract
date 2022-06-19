@@ -298,6 +298,84 @@ exports.transferAsset = async (req, res, next) => {
   }
 };
 
+exports.optinAsset = async (req, res, next) => {
+  try {
+    sk = algosdk.mnemonicToSecretKey(process.env.MNEMO1);
+
+    algod_token = process.env.ALGOD_TOKEN;
+    algod_address = process.env.ALGOD_ADDRESS;
+    console.log(algod_token, algod_address);
+    const pub_1 = process.env.PUBLIC_KEY1;
+    const pub_2 = req.body.address;
+    const token = {
+      'X-API-Key': process.env.A_KEY,
+    };
+    // let algodclient = new algosdk.Algod(algod_token, algod_address);
+    let algodclient = new algosdk.Algodv2(token, algod_address, '');
+    // Opting in to transact with the new asset
+    // Allow accounts that want recieve the new asset
+    // Have to opt in. To do this they send an asset transfer
+    // of the new asset to themseleves
+    // In this example we are setting up the 3rd recovered account to
+    // receive the new asset
+
+    // First update changing transaction parameters
+    // We will account for changing transaction parameters
+    // before every transaction in this example
+    params = await algodclient.getTransactionParams().do();
+    //comment out the next two lines to use suggested fee
+    // params.fee = 1000;
+    // params.flatFee = true;
+
+    let sender = pub_2;
+    let recipient = sender;
+    // We set revocationTarget to undefined as
+    // This is not a clawback operation
+    let revocationTarget = undefined;
+    // CloseReaminerTo is set to undefined as
+    // we are not closing out an asset
+    let closeRemainderTo = undefined;
+    // We are sending 0 assets
+    amount = 0;
+    note = undefined;
+    assetID = req.body.asset_id;
+    // signing and sending "txn" allows sender to begin accepting asset specified by creator and index
+    let opttxn = algosdk.makeAssetTransferTxnWithSuggestedParams(
+      sender,
+      recipient,
+      closeRemainderTo,
+      revocationTarget,
+      amount,
+      note,
+      assetID,
+      params
+    );
+
+    // Must be signed by the account wishing to opt in to the asset
+    rawSignedTxn = opttxn.signTxn(sk.sk);
+    let opttx = await algodclient.sendRawTransaction(rawSignedTxn).do();
+    // Wait for confirmation
+    confirmedTxn = await algosdk.waitForConfirmation(
+      algodclient,
+      opttx.txId,
+      4
+    );
+    //Get the completed Transaction
+    console.log(
+      'Transaction ' +
+        opttx.txId +
+        ' confirmed in round ' +
+        confirmedTxn['confirmed-round']
+    );
+    console.log('Sucessfully optedin');
+  } catch (error) {
+    res.status(400).json({
+      status: 'fail',
+      message: err,
+    });
+  }
+};
+
 exports.createAccount = async (req, res, next) => {
   try {
     algodToken = process.env.ALGOD_TOKEN;
