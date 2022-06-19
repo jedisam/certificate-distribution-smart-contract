@@ -154,6 +154,13 @@ exports.addAsset = async (req, res, next) => {
     const ptx = await algosdk.waitForConfirmation(algodclient, sendTx.txId, 4);
     const assetID = ptx['asset-index'];
     console.log('THE ASSET ID IS: ', assetID);
+    // Update the traineeModel by ID and change Mint field to Minted
+    await TraineeModel.findOneAndUpdate(
+      { email: req.body.email },
+      {
+        mint: 'Minted',
+      }
+    );
     const user = {
       name: req.body.name,
       email: req.body.email,

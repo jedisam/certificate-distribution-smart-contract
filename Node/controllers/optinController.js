@@ -20,6 +20,13 @@ exports.getOptins = async (req, res, next) => {
 
 exports.optin = async (req, res, next) => {
   try {
+    const optinExists = await OptinModel.findOne({ email: req.body.email });
+    if (optinExists) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'You have already opted in',
+      });
+    }
     const optin = await OptinModel.create(req.body);
 
     res.status(201).json({
@@ -29,6 +36,7 @@ exports.optin = async (req, res, next) => {
       },
     });
   } catch (error) {
+    console.log(error);
     res.status(500).json({
       status: 'error',
       message: 'Internal server error',

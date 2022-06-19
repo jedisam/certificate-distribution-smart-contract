@@ -17,6 +17,10 @@ const traineeSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  mint: {
+    type: String,
+    default: 'Mint',
+  },
 });
 
 const TraineeData = mongoose.model('trainee', traineeSchema);
