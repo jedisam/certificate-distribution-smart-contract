@@ -50,4 +50,8 @@ module.exports = class Email {
     await this.send('assetId', 'Here is your certificate Asset ID');
     console.log('Sent!');
   }
+  async sendAssetConfirmation() {
+    await this.send('confirmation', 'Your digital certificate is ready');
+    console.log('Sent!');
+  }
 };

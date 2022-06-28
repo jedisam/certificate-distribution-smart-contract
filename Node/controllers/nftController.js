@@ -169,7 +169,7 @@ exports.addAsset = async (req, res, next) => {
     let clawback = pub_1;
 
     // signing and sending "txn" allows "addr" to create an asset
-    makeAssetCreateTxnWithSuggestedParamsFromObject;
+    // makeAssetCreateTxnWithSuggestedParamsFromObject;
     let txn = algosdk.makeAssetCreateTxnWithSuggestedParams(
       addr,
       note,
@@ -370,6 +370,93 @@ exports.sendAsset = async (req, res, next) => {
   });
 };
 
+exports.optinAsset2 = async (req, res, next) => {
+  try {
+    console.log('The Address: ', req.body.address);
+    // upload asset to IPFS
+
+    algod_token = process.env.ALGOD_TOKEN;
+    algod_address = process.env.ALGOD_ADDRESS;
+    console.log(algod_token, algod_address);
+    // const pub_1 = req.body.address;
+    const token = {
+      'X-API-Key': process.env.A_KEY,
+    };
+    // let algodclient = new algosdk.Algod(algod_token, algod_address);
+    let algodclient = new algosdk.Algodv2(token, algod_address, '');
+
+    let params = await algodclient.getTransactionParams().do();
+
+    // signing and sending "txn" allows "addr" to create an asset
+    // makeAssetCreateTxnWithSuggestedParamsFromObject;
+    let tnxObj = {
+      from: req.body.address,
+      to: req.body.address,
+      assetIndex: req.body.asset_id,
+      note: undefined,
+      amount: 0,
+      suggestedParams: params,
+    };
+    // let txn = algosdk.makeAssetCreateTxnWithSuggestedParams();
+
+    return res.status(200).json({
+      status: 'success',
+      tnxObj,
+      algodclient,
+    });
+  } catch (err) {
+    console.log('SOME ERROR HAS OCCURED: ', err);
+    res.status(400).json({
+      status: 'fail',
+      message: err,
+    });
+  }
+};
+
+exports.optin2 = async (req, res, next) => {
+  try {
+    console.log('The BODYYY: ', req.body);
+    const algod_token = process.env.ALGOD_TOKEN;
+    const algod_address = process.env.ALGOD_ADDRESS;
+    console.log(algod_token, algod_address);
+    // const pub_1 = req.body.address;
+    const token = {
+      'X-API-Key': process.env.A_KEY,
+    };
+    // let algodclient = new algosdk.Algod(algod_token, algod_address);
+    let algodclient = new algosdk.Algodv2(token, algod_address, '');
+
+    // const ptx = await waitForConfirmation(algodclient, sendTx.txId);
+    const ptx = await algosdk.waitForConfirmation(
+      algodclient,
+      req.body.txId,
+      4
+    );
+    console.log('Wait confirmed for optin');
+    const optinExists = await OptinModel.findOne({ email: req.body.email });
+    if (optinExists) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'You have already opted in',
+      });
+    }
+    const optin = await OptinModel.create(req.body);
+
+    res.status(201).json({
+      status: 'success',
+      data: {
+        optin,
+      },
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Internal server error',
+    });
+  }
+};
+
 exports.transferAsset = async (req, res, next) => {
   try {
     sk = algosdk.mnemonicToSecretKey(process.env.MNEMO1);
@@ -444,6 +531,137 @@ exports.transferAsset = async (req, res, next) => {
     res.status(400).json({
       status: 'fail',
       message: err,
+    });
+  }
+};
+
+exports.transferAsset2 = async (req, res, next) => {
+  try {
+    algod_token = process.env.ALGOD_TOKEN;
+    algod_address = process.env.ALGOD_ADDRESS;
+    console.log(algod_token, algod_address);
+    console.log('Add1: ', req.body.address);
+    console.log('Add2: ', req.body.address2);
+    const token = {
+      'X-API-Key': process.env.A_KEY,
+    };
+    // let algodclient = new algosdk.Algod(algod_token, algod_address);
+    let algodclient = new algosdk.Algodv2(token, algod_address, '');
+    params = await algodclient.getTransactionParams().do();
+
+    sender = req.body.address;
+    recipient = req.body.address2;
+    revocationTarget = undefined;
+    closeRemainderTo = undefined;
+    note = undefined;
+    assetID = req.body.asset_id;
+    //Amount of the asset to transfer
+    amount = 1;
+
+    let txnObj = {
+      from: sender,
+      to: recipient,
+      amount,
+      note,
+      assetIndex: assetID,
+      suggestedParams: params,
+    };
+
+    res.status(200).json({
+      status: 'success',
+      txnObj,
+      // message: 'Asset transferred successfully',
+    });
+
+    // // signing and sending "txn" will send "amount" assets from "sender" to "recipient"
+    // let xtxn = algosdk.makeAssetTransferTxnWithSuggestedParams(
+    //   sender,
+    //   recipient,
+    //   closeRemainderTo,
+    //   revocationTarget,
+    //   amount,
+    //   note,
+    //   assetID,
+    //   params
+    // );
+    // // Must be signed by the account sending the asset
+    // rawSignedTxn = xtxn.signTxn(sk.sk);
+    // let xtx = await algodclient.sendRawTransaction(rawSignedTxn).do();
+
+    // // Wait for confirmation
+    // confirmedTxn = await algosdk.waitForConfirmation(algodclient, xtx.txId, 4);
+    // //Get the completed Transaction
+    // console.log(
+    //   'Transaction ' +
+    //     xtx.txId +
+    //     ' confirmed in round ' +
+    //     confirmedTxn['confirmed-round']
+    // );
+
+    // // You should now see the 1 assets listed in the account information
+    // console.log('Successfuly transferred asset');
+    // await OptinModel.findOneAndDelete({ asset_id: req.body.asset_id });
+    // //  Freeze the asset
+    // console.log('Freezing asset...');
+    // await freezeAsset(algodclient, sender, recipient, req.body.asset_id, sk);
+    // console.log('Asset successfully frozen');
+    // const user = {
+    //   name: req.body.name,
+    //   email: req.body.email,
+    // };
+    // const assetUrl =
+    //   'https://goalseeker.purestake.io/algorand/testnet/asset/' +
+    //   req.body.asset_id;
+    // await new Email(user, assetUrl).sendAssetConfirmation();
+  } catch (err) {
+    console.log('SOME ERROR HAS OCCURED: ', err);
+    res.status(400).json({
+      status: 'fail',
+      message: err,
+    });
+  }
+};
+
+exports.transferVerify = async (req, res, next) => {
+  try {
+    console.log('The BODYYY: ', req.body);
+    const algod_token = process.env.ALGOD_TOKEN;
+    const algod_address = process.env.ALGOD_ADDRESS;
+    console.log(algod_token, algod_address);
+    // const pub_1 = req.body.address;
+    const token = {
+      'X-API-Key': process.env.A_KEY,
+    };
+    // let algodclient = new algosdk.Algod(algod_token, algod_address);
+    let algodclient = new algosdk.Algodv2(token, algod_address, '');
+
+    // const ptx = await waitForConfirmation(algodclient, sendTx.txId);
+    const ptx = await algosdk.waitForConfirmation(
+      algodclient,
+      req.body.txId,
+      4
+    );
+    console.log('Wait confirmed for transferASset');
+
+    await OptinModel.findOneAndDelete({ asset_id: req.body.asset_id });
+    const user = {
+      name: req.body.name,
+      email: req.body.email,
+    };
+    const assetUrl =
+      'https://goalseeker.purestake.io/algorand/testnet/asset/' +
+      req.body.asset_id;
+    await new Email(user, assetUrl).sendAssetConfirmation();
+
+    res.status(201).json({
+      status: 'success',
+      message: 'Asset transferred successfully',
+    });
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({
+      status: 'error',
+      message: 'Internal server error',
     });
   }
 };
