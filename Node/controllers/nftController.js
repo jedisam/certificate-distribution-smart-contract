@@ -125,7 +125,6 @@ exports.addAsset = async (req, res, next) => {
     algod_address = process.env.ALGOD_ADDRESS;
     console.log(algod_token, algod_address);
     const pub_1 = process.env.PUBLIC_KEY1;
-    const pub_2 = process.env.PUBLIC_KEY2;
     const token = {
       'X-API-Key': process.env.A_KEY,
     };
@@ -143,9 +142,20 @@ exports.addAsset = async (req, res, next) => {
     // total number of this asset available for circulation
     let totalIssuance = 1;
     // Used to display asset units to user
-    let unitName = 'Certificate';
+    let unitName = 'Tenx NFT';
     // Friendly name of the asset
-    let assetName = `${req.body.name}'s Ten Certificate`;
+    let assetName = 'AlgoNFT';
+    if (req.body.name.length > 6) {
+      assetName =
+        req.body.name[0] +
+        req.body.name[1] +
+        req.body.name[2] +
+        req.body.name[3] +
+        '...';
+    } else {
+      assetName = `${req.body.name}'s Asset`;
+    }
+    // let assetName = `${req.body.name}'s Asset`;
     // Optional string pointing to a URL relating to the asset
     let assetURL = upfsUrl;
     // Optional hash commitment of some sort relating to the asset. 32 character length.
@@ -159,6 +169,7 @@ exports.addAsset = async (req, res, next) => {
     let clawback = pub_1;
 
     // signing and sending "txn" allows "addr" to create an asset
+    makeAssetCreateTxnWithSuggestedParamsFromObject;
     let txn = algosdk.makeAssetCreateTxnWithSuggestedParams(
       addr,
       note,
@@ -206,6 +217,157 @@ exports.addAsset = async (req, res, next) => {
       message: err,
     });
   }
+};
+
+exports.addAsset2 = async (req, res, next) => {
+  try {
+    console.log(req.body.address);
+    // upload asset to IPFS
+    const ipfsHash = await uploadJson(
+      req.body.name,
+      `${req.body.name}'s certificate`
+    );
+    sk = algosdk.mnemonicToSecretKey(process.env.MNEMO1);
+
+    const upfsUrl = 'https://ipfs.io/ipfs/' + ipfsHash;
+
+    algod_token = process.env.ALGOD_TOKEN;
+    algod_address = process.env.ALGOD_ADDRESS;
+    console.log(algod_token, algod_address);
+    // const pub_1 = req.body.address;
+    const token = {
+      'X-API-Key': process.env.A_KEY,
+    };
+    // let algodclient = new algosdk.Algod(algod_token, algod_address);
+    let algodclient = new algosdk.Algodv2(token, algod_address, '');
+
+    let params = await algodclient.getTransactionParams().do();
+
+    let note = undefined;
+    let addr = req.body.address;
+    // Whether user accounts will need to be unfrozen before transacting
+    let defaultFrozen = false;
+    // integer number of decimals for asset unit calculation
+    let decimals = 0;
+    // total number of this asset available for circulation
+    let totalIssuance = 1;
+    // Used to display asset units to user
+    let unitName = 'Tenx NFT';
+    // Friendly name of the asset
+    let assetName = 'AlgoNFT';
+    if (req.body.name.length > 6) {
+      assetName =
+        req.body.name[0] +
+        req.body.name[1] +
+        req.body.name[2] +
+        req.body.name[3] +
+        '...';
+    } else {
+      assetName = `${req.body.name}'s Asset`;
+    }
+    // let assetName = `${req.body.name}'s Asset`;
+    // Optional string pointing to a URL relating to the asset
+    let assetURL = upfsUrl;
+    // Optional hash commitment of some sort relating to the asset. 32 character length.
+    let assetMetadataHash = '16efaa3924a6fd9d3a4824799a4ac65d';
+    let manager = addr;
+    let reserve = addr;
+    // Specified address can freeze or unfreeze user asset holdings
+    let freeze = addr;
+    // Specified address can revoke user asset holdings and send
+    // them to other addresses
+    let clawback = addr;
+
+    // signing and sending "txn" allows "addr" to create an asset
+    // makeAssetCreateTxnWithSuggestedParamsFromObject;
+    let tnxObj = {
+      from: addr,
+      note,
+      total: totalIssuance,
+      decimals,
+      defaultFrozen,
+      manager,
+      reserve,
+      freeze,
+      clawback,
+      unitName,
+      assetName,
+      assetURL,
+      assetMetadataHash,
+      suggestedParams: params,
+    };
+    // let txn = algosdk.makeAssetCreateTxnWithSuggestedParams();
+
+    return res.status(200).json({
+      status: 'success',
+      tnxObj,
+      algodclient,
+    });
+
+    // let signedTxn = algosdk.signTransaction(txn, sk.sk);
+    // const sendTx = await algodclient.sendRawTransaction(signedTxn.blob).do();
+    // console.log('Transaction sent with ID ' + sendTx.txId);
+    // // const ptx = await waitForConfirmation(algodclient, sendTx.txId);
+    // const ptx = await algosdk.waitForConfirmation(algodclient, sendTx.txId, 4);
+    // const assetID = ptx['asset-index'];
+    // console.log('THE ASSET ID IS: ', assetID);
+    // // Update the traineeModel by ID and change Mint field to Minted
+    // await TraineeModel.findOneAndUpdate(
+    //   { email: req.body.email },
+    //   {
+    //     mint: 'Minted',
+    //   }
+    // );
+    // const user = {
+    //   name: req.body.name,
+    //   email: req.body.email,
+    // };
+    // await new Email(user, assetID).sendId();
+    // res.status(200).json({
+    //   status: 'success',
+    //   assetID,
+    // });
+  } catch (err) {
+    console.log('SOME ERROR HAS OCCURED: ', err);
+    res.status(400).json({
+      status: 'fail',
+      message: err,
+    });
+  }
+};
+
+exports.sendAsset = async (req, res, next) => {
+  console.log('The BODYYY: ', req.body);
+  const algod_token = process.env.ALGOD_TOKEN;
+  const algod_address = process.env.ALGOD_ADDRESS;
+  console.log(algod_token, algod_address);
+  // const pub_1 = req.body.address;
+  const token = {
+    'X-API-Key': process.env.A_KEY,
+  };
+  // let algodclient = new algosdk.Algod(algod_token, algod_address);
+  let algodclient = new algosdk.Algodv2(token, algod_address, '');
+
+  // const ptx = await waitForConfirmation(algodclient, sendTx.txId);
+  const ptx = await algosdk.waitForConfirmation(algodclient, req.body.txId, 4);
+  const assetID = ptx['asset-index'];
+  console.log('THE ASSET ID IS: ', assetID);
+  // Update the traineeModel by ID and change Mint field to Minted
+  await TraineeModel.findOneAndUpdate(
+    { email: req.body.email },
+    {
+      mint: 'Minted',
+    }
+  );
+  const user = {
+    name: req.body.name,
+    email: req.body.email,
+  };
+  await new Email(user, assetID).sendId();
+  res.status(200).json({
+    status: 'success',
+    assetID,
+  });
 };
 
 exports.transferAsset = async (req, res, next) => {
@@ -265,6 +427,14 @@ exports.transferAsset = async (req, res, next) => {
     console.log('Freezing asset...');
     await freezeAsset(algodclient, sender, recipient, req.body.asset_id, sk);
     console.log('Asset successfully frozen');
+    const user = {
+      name: req.body.name,
+      email: req.body.email,
+    };
+    const assetUrl =
+      'https://goalseeker.purestake.io/algorand/testnet/asset/' +
+      req.body.asset_id;
+    await new Email(user, assetUrl).sendAssetConfirmation();
     res.status(200).json({
       status: 'success',
       message: 'Asset transferred successfully',
