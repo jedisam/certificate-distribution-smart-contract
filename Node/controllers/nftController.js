@@ -303,30 +303,6 @@ exports.addAsset2 = async (req, res, next) => {
       tnxObj,
       algodclient,
     });
-
-    // let signedTxn = algosdk.signTransaction(txn, sk.sk);
-    // const sendTx = await algodclient.sendRawTransaction(signedTxn.blob).do();
-    // console.log('Transaction sent with ID ' + sendTx.txId);
-    // // const ptx = await waitForConfirmation(algodclient, sendTx.txId);
-    // const ptx = await algosdk.waitForConfirmation(algodclient, sendTx.txId, 4);
-    // const assetID = ptx['asset-index'];
-    // console.log('THE ASSET ID IS: ', assetID);
-    // // Update the traineeModel by ID and change Mint field to Minted
-    // await TraineeModel.findOneAndUpdate(
-    //   { email: req.body.email },
-    //   {
-    //     mint: 'Minted',
-    //   }
-    // );
-    // const user = {
-    //   name: req.body.name,
-    //   email: req.body.email,
-    // };
-    // await new Email(user, assetID).sendId();
-    // res.status(200).json({
-    //   status: 'success',
-    //   assetID,
-    // });
   } catch (err) {
     console.log('SOME ERROR HAS OCCURED: ', err);
     res.status(400).json({
@@ -572,47 +548,6 @@ exports.transferAsset2 = async (req, res, next) => {
       txnObj,
       // message: 'Asset transferred successfully',
     });
-
-    // // signing and sending "txn" will send "amount" assets from "sender" to "recipient"
-    // let xtxn = algosdk.makeAssetTransferTxnWithSuggestedParams(
-    //   sender,
-    //   recipient,
-    //   closeRemainderTo,
-    //   revocationTarget,
-    //   amount,
-    //   note,
-    //   assetID,
-    //   params
-    // );
-    // // Must be signed by the account sending the asset
-    // rawSignedTxn = xtxn.signTxn(sk.sk);
-    // let xtx = await algodclient.sendRawTransaction(rawSignedTxn).do();
-
-    // // Wait for confirmation
-    // confirmedTxn = await algosdk.waitForConfirmation(algodclient, xtx.txId, 4);
-    // //Get the completed Transaction
-    // console.log(
-    //   'Transaction ' +
-    //     xtx.txId +
-    //     ' confirmed in round ' +
-    //     confirmedTxn['confirmed-round']
-    // );
-
-    // // You should now see the 1 assets listed in the account information
-    // console.log('Successfuly transferred asset');
-    // await OptinModel.findOneAndDelete({ asset_id: req.body.asset_id });
-    // //  Freeze the asset
-    // console.log('Freezing asset...');
-    // await freezeAsset(algodclient, sender, recipient, req.body.asset_id, sk);
-    // console.log('Asset successfully frozen');
-    // const user = {
-    //   name: req.body.name,
-    //   email: req.body.email,
-    // };
-    // const assetUrl =
-    //   'https://goalseeker.purestake.io/algorand/testnet/asset/' +
-    //   req.body.asset_id;
-    // await new Email(user, assetUrl).sendAssetConfirmation();
   } catch (err) {
     console.log('SOME ERROR HAS OCCURED: ', err);
     res.status(400).json({
